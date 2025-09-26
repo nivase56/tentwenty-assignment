@@ -7,6 +7,9 @@ export default async function Home() {
   if (!session) {
     redirect("/login");
   }
+  if(session){
+    redirect("/dashboard");
+  }
   return (
     <div>
       <p className="text-xl">Hello world</p>
