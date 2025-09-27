@@ -10,7 +10,7 @@ export interface Timesheet {
   id: string;
   weekNumber: number;
   dateRange: string;
-  status: 'COMPLETED' | 'INCOMPLETE' | 'MISSING';
+  status?: 'COMPLETED' | 'INCOMPLETE' | 'MISSING';
   userId: string;
   entries: TimesheetEntry[];
 }

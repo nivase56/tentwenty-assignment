@@ -3,20 +3,19 @@ import { timesheetAPI } from '@/lib/api';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await timesheetAPI.getUser(params.id);
-    
+    const { id } = await params;
+    const user = await timesheetAPI.getUser(id);
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
     }
-
     return NextResponse.json(user);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

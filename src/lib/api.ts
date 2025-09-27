@@ -28,28 +28,49 @@ class TimesheetAPI {
 
   async createTimesheet(data: CreateTimesheetRequest): Promise<Timesheet> {
     await delay(1000);
-    const newTimesheet: Timesheet = {
-      id: Date.now().toString(),
-      weekNumber: data.weekNumber,
-      dateRange: data.dateRange,
-      status: 'INCOMPLETE',
-      userId: data.userId,
-      entries: data.entries || []
-    };
-    this.timesheets.push(newTimesheet);
-    return newTimesheet;
+      const entries = data.entries || [];
+      const totalHours = entries.reduce((sum, entry) => sum + entry.hours, 0);
+      let status: 'COMPLETED' | 'INCOMPLETE' | 'MISSING';
+      if (totalHours === 0) {
+        status = 'MISSING';
+      } else if (totalHours < 40) {
+        status = 'INCOMPLETE';
+      } else {
+        status = 'COMPLETED';
+      }
+      const newTimesheet: Timesheet = {
+        id: Date.now().toString(),
+        weekNumber: data.weekNumber,
+        dateRange: data.dateRange,
+        status,
+        userId: data.userId,
+        entries
+      };
+      this.timesheets.push(newTimesheet);
+      return newTimesheet;
   }
 
   async updateTimesheet(data: UpdateTimesheetRequest): Promise<Timesheet | null> {
     await delay(800);
     const index = this.timesheets.findIndex(timesheet => timesheet.id === data.id);
     if (index === -1) return null;
-
-    this.timesheets[index] = {
-      ...this.timesheets[index],
-      ...data
-    };
-    return this.timesheets[index];
+      const updated = {
+        ...this.timesheets[index],
+        ...data
+      };
+      const entries = updated.entries || [];
+      const totalHours = entries.reduce((sum, entry) => sum + entry.hours, 0);
+      let status: 'COMPLETED' | 'INCOMPLETE' | 'MISSING';
+      if (totalHours === 0) {
+        status = 'MISSING';
+      } else if (totalHours < 40) {
+        status = 'INCOMPLETE';
+      } else {
+        status = 'COMPLETED';
+      }
+      updated.status = status;
+      this.timesheets[index] = updated;
+      return updated;
   }
 
   async deleteTimesheet(id: string): Promise<boolean> {

@@ -3,27 +3,42 @@
 import React, { useState } from 'react';
 import { TimesheetModal } from '@/components/TimesheetModal';
 import { useTimesheets } from '@/hooks/useTimeSheets';
-import { Timesheet } from '@/lib/mockUsers';
 import { TimesheetTable } from '@/components/TimesheetTable';
 import { mockUsers } from '@/lib/mockUsers';
+import { Timesheet } from '@/types/timesheet';
+import { SessionProvider, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+
 export interface TimesheetModalData {
   weekNumber: number;
   dateRange: string;
 }
-export default function Home() {
+
+function Home() {
   const userId = '1'; // In a real app, this would come from authentication
   const user = mockUsers.find(u => u.id === userId);
   const { timesheets, loading, error, createTimesheet, updateTimesheet } = useTimesheets(userId);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTimesheet, setSelectedTimesheet] = useState<Timesheet | undefined>();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (!session && status !== 'loading') {
+      router.push('/login');
+    }
+  }, [session, status, router]);
+
+  if (status === 'loading') {
+    return <p>Loading...</p>;
+  }
+
+  if (!session) {
+    return null;
+  }
 
   const handleView = (timesheet: Timesheet) => {
     alert(`Viewing timesheet for ${timesheet.dateRange}`);
-  };
-
-  const handleCreate = () => {
-    setSelectedTimesheet(undefined);
-    setIsModalOpen(true);
   };
 
   const handleUpdate = (timesheet: Timesheet) => {
@@ -65,6 +80,7 @@ export default function Home() {
     );
   }
 
+  
   return (
     <div>
       <TimesheetTable
@@ -83,5 +99,13 @@ export default function Home() {
         userId={userId}
       />
     </div>
+  );
+}
+
+export default function HomeWrapper() {
+  return (
+    <SessionProvider>
+      <Home />
+    </SessionProvider>
   );
 }

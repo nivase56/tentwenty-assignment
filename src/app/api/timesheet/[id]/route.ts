@@ -3,10 +3,11 @@ import { timesheetAPI } from '@/lib/api';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const timesheet = await timesheetAPI.getTimesheet(params.id);
+    const { id } = await context.params;
+    const timesheet = await timesheetAPI.getTimesheet(id);
     
     if (!timesheet) {
       return NextResponse.json(
@@ -26,12 +27,13 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const body = await request.json();
     const timesheet = await timesheetAPI.updateTimesheet({
-      id: params.id,
+      id,
       ...body
     });
 
@@ -53,10 +55,11 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const success = await timesheetAPI.deleteTimesheet(params.id);
+    const { id } = await context.params;
+    const success = await timesheetAPI.deleteTimesheet(id);
     
     if (!success) {
       return NextResponse.json(

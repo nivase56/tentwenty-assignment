@@ -51,7 +51,7 @@ export const useTimesheets = (userId: string) => {
   const updateTimesheet = async (data: UpdateTimesheetRequest) => {
     try {
       setError(null);
-      const response = await fetch(`/api/timesheets/${data.id}`, {
+      const response = await fetch(`/api/timesheet/${data.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

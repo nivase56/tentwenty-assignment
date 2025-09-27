@@ -1,6 +1,5 @@
 'use client';
-
-import { CreateTimesheetRequest, Timesheet } from '@/lib/mockUsers';
+import { CreateTimesheetRequest, Timesheet, TimesheetEntry } from '@/types/timesheet';
 import React, { useState, useEffect } from 'react';
 
 interface TimesheetModalProps {
@@ -22,6 +21,7 @@ export const TimesheetModal: React.FC<TimesheetModalProps> = ({
     weekNumber: '',
     dateRange: '',
   });
+  const [entries, setEntries] = useState<TimesheetEntry[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -31,11 +31,13 @@ export const TimesheetModal: React.FC<TimesheetModalProps> = ({
         weekNumber: timesheet.weekNumber.toString(),
         dateRange: timesheet.dateRange,
       });
+      setEntries(timesheet.entries || []);
     } else {
       setFormData({
         weekNumber: '',
         dateRange: '',
       });
+      setEntries([]);
     }
     setErrors({});
   }, [timesheet, isOpen]);
@@ -65,7 +67,8 @@ export const TimesheetModal: React.FC<TimesheetModalProps> = ({
       await onSave({
         weekNumber: Number(formData.weekNumber),
         dateRange: formData.dateRange,
-        userId
+        userId,
+        entries
       });
       onClose();
     } catch (error) {
@@ -91,7 +94,6 @@ export const TimesheetModal: React.FC<TimesheetModalProps> = ({
             ×
           </button>
         </div>
-
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -110,7 +112,6 @@ export const TimesheetModal: React.FC<TimesheetModalProps> = ({
               <p className="text-red-500 text-sm mt-1">{errors.weekNumber}</p>
             )}
           </div>
-
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Date Range
@@ -128,7 +129,69 @@ export const TimesheetModal: React.FC<TimesheetModalProps> = ({
               <p className="text-red-500 text-sm mt-1">{errors.dateRange}</p>
             )}
           </div>
-
+          {/* Entries Section */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Entries (Tasks/Hours)</label>
+            {entries.map((entry, idx) => (
+              <div key={idx} className="flex space-x-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Description"
+                  value={entry.description || ''}
+                  onChange={e => {
+                    const newEntries = [...entries];
+                    newEntries[idx] = { ...newEntries[idx], description: e.target.value };
+                    setEntries(newEntries);
+                  }}
+                  className="px-2 py-1 border rounded w-1/3"
+                />
+                <input
+                  type="text"
+                  placeholder="Project"
+                  value={entry.project || ''}
+                  onChange={e => {
+                    const newEntries = [...entries];
+                    newEntries[idx] = { ...newEntries[idx], project: e.target.value };
+                    setEntries(newEntries);
+                  }}
+                  className="px-2 py-1 border rounded w-1/4"
+                />
+                <input
+                  type="date"
+                  value={entry.date || ''}
+                  onChange={e => {
+                    const newEntries = [...entries];
+                    newEntries[idx] = { ...newEntries[idx], date: e.target.value };
+                    setEntries(newEntries);
+                  }}
+                  className="px-2 py-1 border rounded w-1/4"
+                />
+                <input
+                  type="number"
+                  placeholder="Hours"
+                  value={entry.hours || ''}
+                  min={0}
+                  max={24}
+                  onChange={e => {
+                    const newEntries = [...entries];
+                    newEntries[idx] = { ...newEntries[idx], hours: Number(e.target.value) };
+                    setEntries(newEntries);
+                  }}
+                  className="px-2 py-1 border rounded w-1/6"
+                />
+                <button type="button" className="text-red-500" onClick={() => {
+                  setEntries(entries.filter((_, i) => i !== idx));
+                }}>✕</button>
+              </div>
+            ))}
+            <button
+              type="button"
+              className="mt-2 px-3 py-1 bg-gray-200 rounded text-sm"
+              onClick={() => setEntries([...entries, { id: Date.now().toString(), date: '', hours: 0, description: '', project: '' }])}
+            >
+              + Add Entry
+            </button>
+          </div>
           <div className="flex justify-end space-x-3">
             <button
               type="button"

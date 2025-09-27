@@ -1,8 +1,19 @@
 'use client';
 
+// Format date range as 'Jan 01 - Jan 05'
+  function formatDateRange(dateRange: string): string {
+    // dateRange is 'YYYY-MM-DD - YYYY-MM-DD'
+    const [start, end] = dateRange.split(' - ');
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const options: Intl.DateTimeFormatOptions = { month: 'short', day: '2-digit' };
+    return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
+  }
+
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Navbar } from './Navbar';
-import { Timesheet } from '@/types/timesheet';
+import { Timesheet, TimesheetEntry } from '@/types/timesheet';
 
 interface TimesheetTableProps {
   timesheets: Timesheet[];
@@ -19,6 +30,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   loading,
   userName
 }) => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [selectedStatus, setSelectedStatus] = useState<string>('');
@@ -28,11 +40,19 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   const dateRanges = Array.from(new Set(timesheets.map(ts => ts.dateRange)));
   const statusOptions = ['COMPLETED', 'INCOMPLETE', 'MISSING'];
 
+  const calculateStatus = (entries: TimesheetEntry[]): string => {
+    const totalHours = entries.reduce((sum, entry) => sum + entry.hours, 0);
+    if (totalHours === 0) return 'MISSING';
+    if (totalHours < 40) return 'INCOMPLETE';
+    return 'COMPLETED';
+  };
+
   // Filter timesheets by status and date
   const filteredTimesheets = timesheets.filter(ts => {
     let statusMatch = true;
     let dateMatch = true;
-    if (selectedStatus) statusMatch = ts.status === selectedStatus;
+    const calculatedStatus = calculateStatus(ts.entries);
+    if (selectedStatus) statusMatch = calculatedStatus === selectedStatus;
     if (selectedDate) dateMatch = ts.dateRange === selectedDate;
     return statusMatch && dateMatch;
   });
@@ -168,38 +188,45 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedTimesheets.map((timesheet) => (
-                    <tr key={timesheet.id} className="hover:bg-gray-50">
-                      <td className="py-4 px-6 text-sm text-gray-900">{timesheet.weekNumber}</td>
-                      <td className="py-4 px-6 text-sm text-gray-900">{timesheet.dateRange}</td>
-                      <td className="py-4 px-6">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide ${getStatusColor(timesheet.status)}`}>
-                          {timesheet.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        {timesheet.status === 'MISSING' ? (
-                          <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            Create
-                          </button>
-                        ) : timesheet.status === 'INCOMPLETE' ? (
-                          <button
-                            onClick={() => onUpdate(timesheet)}
-                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                          >
-                            Update
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => onView(timesheet)}
-                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                          >
-                            View
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {paginatedTimesheets.map((timesheet) => {
+                    const status = calculateStatus(timesheet.entries);
+                    return (
+                      <tr
+                        key={timesheet.id}
+                        className="hover:bg-gray-50 cursor-pointer"
+                        onClick={() => router.push(`/dashboard/${timesheet.id}`)}
+                      >
+                        <td className="py-4 px-6 text-sm text-gray-900">{timesheet.weekNumber}</td>
+                        <td className="py-4 px-6 text-sm text-gray-900">{formatDateRange(timesheet.dateRange)}</td>
+                        <td className="py-4 px-6">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide ${getStatusColor(status)}`}>
+                            {status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          {status === 'MISSING' ? (
+                            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium" onClick={e => {e.stopPropagation();}}>
+                              Create
+                            </button>
+                          ) : status === 'INCOMPLETE' ? (
+                            <button
+                              onClick={e => {e.stopPropagation(); onUpdate(timesheet);}}
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                              Update
+                            </button>
+                          ) : (
+                            <button
+                              onClick={e => {e.stopPropagation(); onView(timesheet);}}
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                              View
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
