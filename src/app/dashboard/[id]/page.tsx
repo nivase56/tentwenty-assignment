@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { AddEntryModal } from "@/components/AddEntryModal";
+import { TimesheetDetailModal } from "@/components/TimesheetDetailModal";
 import { Navbar } from "@/components/Navbar";
 import { useRouter } from "next/navigation";
 import {
@@ -17,6 +18,9 @@ interface TimesheetDetailProps {
 export default function TimesheetDetail({ params }: TimesheetDetailProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalDate, setModalDate] = useState<string>("");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<TimesheetEntry | null>(null);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const router = useRouter();
   const [timesheet, setTimesheet] = useState<Timesheet | null>(null);
   const [entries, setEntries] = useState<TimesheetEntry[]>([]);
@@ -64,6 +68,59 @@ export default function TimesheetDetail({ params }: TimesheetDetailProps) {
   const handleAddClick = (date: string) => {
     setModalDate(date);
     setModalOpen(true);
+  };
+
+  const handleEditClick = (entry: TimesheetEntry) => {
+    setEditingEntry(entry);
+    setEditModalOpen(true);
+    setMenuOpenId(null);
+  };
+
+  const handleDeleteClick = async (entryId: string) => {
+    if (!unwrappedParams) return;
+    try {
+      const updatedEntries = entries.filter(e => e.id !== entryId);
+      const payload: UpdateTimesheetRequest = {
+        id: unwrappedParams.id,
+        entries: updatedEntries,
+      };
+      const res = await fetch(`/api/timesheet/${unwrappedParams.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Failed to delete entry");
+      const updated = await res.json();
+      setEntries(updated.entries || []);
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setMenuOpenId(null);
+    }
+  };
+
+  const handleEditSave = async (updatedEntry: TimesheetEntry) => {
+    setEditModalOpen(false);
+    if (!unwrappedParams || !editingEntry) return;
+    try {
+      const updatedEntries = entries.map(e => e.id === editingEntry.id ? { ...updatedEntry, id: editingEntry.id } : e);
+      const payload: UpdateTimesheetRequest = {
+        id: unwrappedParams.id,
+        entries: updatedEntries,
+      };
+      const res = await fetch(`/api/timesheet/${unwrappedParams.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Failed to update entry");
+      const updated = await res.json();
+      setEntries(updated.entries || []);
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setEditingEntry(null);
+    }
   };
 
   const handleSaveEntry = async (entry: {
@@ -192,10 +249,22 @@ export default function TimesheetDetail({ params }: TimesheetDetailProps) {
                           <div className="ml-4 relative">
                             <button
                               className="text-gray-400 hover:text-gray-600 px-2 py-1"
-                              onClick={() => alert("Show menu (Edit/Delete)")}
+                              onClick={() => setMenuOpenId(menuOpenId === entry.id ? null : entry.id)}
                             >
                               &#x22EE;
                             </button>
+                            {menuOpenId === entry.id && (
+                              <div className="absolute right-0 mt-2 w-24 bg-white border rounded shadow-lg z-10">
+                                <button
+                                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                                  onClick={() => handleEditClick(entry)}
+                                >Edit</button>
+                                <button
+                                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
+                                  onClick={() => handleDeleteClick(entry.id)}
+                                >Delete</button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))
@@ -223,6 +292,12 @@ export default function TimesheetDetail({ params }: TimesheetDetailProps) {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSave={handleSaveEntry}
+      />
+      <TimesheetDetailModal
+        isOpen={editModalOpen}
+        entry={editingEntry}
+        onClose={() => { setEditModalOpen(false); setEditingEntry(null); }}
+        onSave={handleEditSave}
       />
     </div>
   );
