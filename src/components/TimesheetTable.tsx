@@ -1,8 +1,8 @@
 'use client';
 
-import { Timesheet } from '@/lib/mockUsers';
 import React, { useState } from 'react';
 import { Navbar } from './Navbar';
+import { Timesheet } from '@/types/timesheet';
 
 interface TimesheetTableProps {
   timesheets: Timesheet[];
