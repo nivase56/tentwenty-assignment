@@ -1,11 +1,7 @@
 
-import { CreateTimesheetRequest, mockTimesheets, mockUsers, Timesheet, UpdateTimesheetRequest, users } from './mockUsers';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { mockTimesheets, mockUsers, users } from './mockUsers';
+import { User } from '../types/user';
+import { Timesheet, CreateTimesheetRequest, UpdateTimesheetRequest } from '../types/timesheet';
 
 
 // Simulate API delay

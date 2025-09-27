@@ -1,47 +1,5 @@
-export type MockUser = {
-  id: number;
-  email: string;
-  password: string;
-  name: string;
-};
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
-export interface TimesheetEntry {
-  id: string;
-  date: string;
-  hours: number;
-  description: string;
-  project: string;
-}
-
-export interface Timesheet {
-  id: string;
-  weekNumber: number;
-  dateRange: string;
-  status: 'COMPLETED' | 'INCOMPLETE' | 'MISSING';
-  userId: string;
-  entries: TimesheetEntry[];
-}
-
-export interface CreateTimesheetRequest {
-  weekNumber: number;
-  dateRange: string;
-  userId: string;
-  entries?: TimesheetEntry[];
-}
-
-export interface UpdateTimesheetRequest {
-  id: string;
-  weekNumber?: number;
-  dateRange?: string;
-  status?: 'COMPLETED' | 'INCOMPLETE' | 'MISSING';
-  entries?: TimesheetEntry[];
-}
+import { MockUser, User } from '../types/user';
+import { TimesheetEntry, Timesheet, CreateTimesheetRequest, UpdateTimesheetRequest } from '../types/timesheet';
 
 export const users: MockUser[] = [
   {
