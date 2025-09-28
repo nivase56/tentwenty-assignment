@@ -18,12 +18,13 @@ public/            # Static assets
 ```
 
 ## Key Features
-- Modern Next.js app router
-- Clean, readable code with comments
-- Mock API and data for local testing
-- Fully typed with TypeScript
-- Responsive UI with Tailwind CSS
-- Tree-shakable imports and optimized structure
+- Login Using NextAuth
+- Protected Routes for /dashboard
+- Timesheet Table with Date range multiselect and status filter
+- Details view of each week with edit and delete feature
+- Add new entry for each date
+- Status update as per hour spent on the week
+  
 
 ## For Interviewers & New Developers
 - All business logic is in `src/lib/api.ts` and `src/lib/mockUsers.ts`
@@ -33,10 +34,6 @@ public/            # Static assets
 - Custom hook: `src/hooks/useTimeSheets.ts`
 
 > The code is intentionally kept simple, modular, and well-commented for easy review and extension.
-
-
-## Getting Started
-
 
 ## Getting Started
 
@@ -53,9 +50,6 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-
-You can start editing the app by modifying files in `src/app/`. The page auto-updates as you edit the file.
 
 ## Code Quality & Optimization
 - All unused code and dependencies have been removed
