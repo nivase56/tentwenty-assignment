@@ -46,7 +46,7 @@ export const AddEntryModal: React.FC<AddEntryModalProps> = ({ isOpen, onClose, o
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Select Project *</label>
             <select
-              className="w-full border px-3 py-2 rounded focus:outline-none"
+              className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none"
               value={project}
               onChange={e => setProject(e.target.value)}
               required
@@ -60,7 +60,7 @@ export const AddEntryModal: React.FC<AddEntryModalProps> = ({ isOpen, onClose, o
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Type of Work *</label>
             <select
-              className="w-full border px-3 py-2 rounded focus:outline-none"
+              className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none"
               value={type}
               onChange={e => setType(e.target.value)}
               required
@@ -74,7 +74,7 @@ export const AddEntryModal: React.FC<AddEntryModalProps> = ({ isOpen, onClose, o
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Task description *</label>
             <textarea
-              className="w-full border px-3 py-2 rounded focus:outline-none"
+              className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none"
               value={description}
               onChange={e => setDescription(e.target.value)}
               required
@@ -86,9 +86,9 @@ export const AddEntryModal: React.FC<AddEntryModalProps> = ({ isOpen, onClose, o
           <div className="mb-6">
             <label className="block text-sm font-medium mb-1">Hours *</label>
             <div className="flex items-center space-x-2">
-              <button type="button" className="px-2 py-1 border rounded" onClick={() => setHours(h => Math.max(1, h - 1))}>-</button>
+              <button type="button" className="px-2 py-1 border border-gray-300 rounded" onClick={() => setHours(h => Math.max(1, h - 1))}>-</button>
               <span className="px-3">{hours}</span>
-              <button type="button" className="px-2 py-1 border rounded" onClick={() => setHours(h => h + 1)}>+</button>
+              <button type="button" className="px-2 py-1 border border-gray-300 rounded" onClick={() => setHours(h => h + 1)}>+</button>
             </div>
           </div>
           <div className="flex space-x-3">

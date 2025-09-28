@@ -40,17 +40,17 @@ export const TimesheetDetailModal: React.FC<TimesheetDetailModalProps> = ({ isOp
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-white/20 backdrop-blur-sm text-black border-gray-300 ">
 			<div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
 				<h3 className="text-lg font-bold mb-4">Edit Entry</h3>
 				<form onSubmit={handleSubmit} className="space-y-4">
-					<input
+					<input 
 						type="text"
 						name="project"
 						value={form.project}
 						onChange={handleChange}
 						placeholder="Project"
-						className="w-full border rounded px-3 py-2"
+						className="w-full border border-gray-300 rounded px-3 py-2"
 						required
 					/>
 								{/* Removed type field, not present in TimesheetEntry */}
@@ -59,7 +59,7 @@ export const TimesheetDetailModal: React.FC<TimesheetDetailModalProps> = ({ isOp
 						value={form.description}
 						onChange={handleChange}
 						placeholder="Description"
-						className="w-full border rounded px-3 py-2"
+						className="w-full border border-gray-300 rounded px-3 py-2"
 						required
 					/>
 					<input
@@ -68,7 +68,7 @@ export const TimesheetDetailModal: React.FC<TimesheetDetailModalProps> = ({ isOp
 						value={form.hours}
 						onChange={handleChange}
 						placeholder="Hours"
-						className="w-full border rounded px-3 py-2"
+						className="w-full border border-gray-300 rounded px-3 py-2"
 						min={0}
 						max={24}
 						required
